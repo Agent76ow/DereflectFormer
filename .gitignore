@@ -5,7 +5,11 @@ data/
 results/
 saved_models/
 logs/
-datasets/
+datasets/RESIDE-6K
+datasets/REFLECT
+real
+synthetic
+__pycache__
 123
 
 !data/
