@@ -85,7 +85,7 @@ def mix_images(path1, path2, save_dir):
 
 
 if __name__ == '__main__':
-    path1 = 'D:/Code/DehazeFormer-main/datasets/data_generation/synthetic/transmission_layer'
-    path2 = 'D:/Code/DehazeFormer-main/datasets/data_generation/synthetic/reflection_layer'
-    save_dir = 'D:/Code/DehazeFormer-main/datasets/data_generation/synthetic/mix_0.3'
+    path1 = 'D:/Code/DereflectFormer-main/datasets/data_generation/synthetic/transmission_layer'
+    path2 = 'D:/Code/DereflectFormer-main/datasets/data_generation/synthetic/reflection_layer'
+    save_dir = 'D:/Code/DereflectFormer-main/datasets/data_generation/synthetic/mix_0.3'
     mix_images(path1, path2, save_dir)
