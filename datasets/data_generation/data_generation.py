@@ -78,14 +78,14 @@ def mix_images(path1, path2, save_dir):
         imgR = Image.fromarray(np.uint8(R*255))
         imgT = Image.fromarray(np.uint8(T*255))
 
-        mixed = Image.blend(imgT, imgR, 0.3) # should be 0.3
+        mixed = Image.blend(imgT, imgR, 0.03) # should be 0.3
 
         mixed.save(os.path.join(save_dir, file_name))
         print('Mixed image saved:', file_name)
 
 
 if __name__ == '__main__':
-    path1 = 'D:/Code/DereflectFormer-main/datasets/data_generation/synthetic/transmission_layer'
-    path2 = 'D:/Code/DereflectFormer-main/datasets/data_generation/synthetic/reflection_layer'
-    save_dir = 'D:/Code/DereflectFormer-main/datasets/data_generation/synthetic/mix_0.3'
+    path1 = 'D:/Code/DereflectFormer/datasets/data_generation/synthetic/transmission_layer_224'
+    path2 = 'D:/Code/DereflectFormer/datasets/data_generation/synthetic/reflection_layer_224'
+    save_dir = 'D:/Code/DereflectFormer/datasets/data_generation/synthetic/mix_0.03_224'
     mix_images(path1, path2, save_dir)

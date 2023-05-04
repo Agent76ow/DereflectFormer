@@ -9,7 +9,7 @@ from torch.utils.data import DataLoader
 from tensorboardX import SummaryWriter
 from tqdm import tqdm
 from thop import profile
-
+import pytorch_ssim
 
 from utils import AverageMeter
 from datasets.loader import PairLoader
@@ -17,7 +17,7 @@ from models import *
 
 
 parser = argparse.ArgumentParser()
-parser.add_argument('--model', default='dereflectformer-t', type=str, help='model name')
+parser.add_argument('--model', default='dereflectformer-s', type=str, help='model name')
 parser.add_argument('--num_workers', default=0, type=int, help='number of workers')
 parser.add_argument('--no_autocast', action='store_false', default=True, help='disable autocast')
 parser.add_argument('--save_dir', default='./saved_models/', type=str, help='path to models saving')
@@ -54,7 +54,19 @@ def train(train_loader, network, criterion, optimizer, scaler):
 		scaler.update()
 
 	return losses.avg
+# ------------ssim loss-------------------
 
+criterion_l1 = nn.L1Loss()
+ssim_loss = pytorch_ssim.SSIM(window_size=11, size_average=True)
+
+# 定义组合损失函数
+def combined_loss(prediction, target, alpha=0.5):
+    l1_loss = criterion_l1(prediction, target)
+    ssim_value = ssim_loss(prediction, target)
+    ssim_loss_value = 1 - ssim_value
+    return alpha * l1_loss + (1 - alpha) * ssim_loss_value
+
+# ------------ssim loss-------------------
 
 def valid(val_loader, network):
 	PSNR = AverageMeter()
@@ -87,7 +99,8 @@ if __name__ == '__main__':
 	network = eval(args.model.replace('-', '_'))()
 	network = nn.DataParallel(network).cuda()
 
-	criterion = nn.L1Loss()
+	# criterion = nn.L1Loss()
+	criterion = combined_loss()			
 
 	if setting['optimizer'] == 'adam':
 		optimizer = torch.optim.Adam(network.parameters(), lr=setting['lr'])

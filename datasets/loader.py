@@ -9,7 +9,8 @@ from utils import hwc_to_chw, read_img
 # change size from 256 to 224
 def augment(imgs=[], size=224, edge_decay=0., only_h_flip=False):
 	H, W, _ = imgs[0].shape
-	Hc, Wc = [size, size]
+	# Hc, Wc = [size, size]
+	Hc, Wc = [224, 224]
 
 	if H < Hc:
 		raise ValueError("H should be larger than Hc")
