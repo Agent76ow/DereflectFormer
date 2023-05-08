@@ -13,7 +13,7 @@ from models import *
 from thop import profile
 
 parser = argparse.ArgumentParser()
-parser.add_argument('--model', default='dereflectformer-s', type=str, help='model name')
+parser.add_argument('--model', default='dereflectformer-t', type=str, help='model name')
 parser.add_argument('--num_workers', default=0, type=int, help='number of workers')
 parser.add_argument('--data_dir', default='./datasets/', type=str, help='path to dataset')
 parser.add_argument('--save_dir', default='./saved_models/', type=str, help='path to models saving')
@@ -66,7 +66,7 @@ def test(test_loader, network, result_dir):
 			psnr_val = 10 * torch.log10(1 / F.mse_loss(output, target)).item()
 
 			_, _, H, W = output.size()
-			down_ratio = max(1, round(min(H, W) / 256))		# Zhou Wang
+			down_ratio = max(1, round(min(H, W) / 224))		
 			ssim_val = ssim(F.adaptive_avg_pool2d(output, (int(H / down_ratio), int(W / down_ratio))), 
 							F.adaptive_avg_pool2d(target, (int(H / down_ratio), int(W / down_ratio))), 
 							data_range=1, size_average=False).item()		

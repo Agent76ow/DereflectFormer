@@ -9,7 +9,7 @@ from torch.utils.data import DataLoader
 from tensorboardX import SummaryWriter
 from tqdm import tqdm
 from thop import profile
-import pytorch_ssim
+from pytorch_msssim import ssim
 
 from utils import AverageMeter
 from datasets.loader import PairLoader
@@ -17,7 +17,7 @@ from models import *
 
 
 parser = argparse.ArgumentParser()
-parser.add_argument('--model', default='dereflectformer-s', type=str, help='model name')
+parser.add_argument('--model', default='dereflectformer-t', type=str, help='model name')
 parser.add_argument('--num_workers', default=0, type=int, help='number of workers')
 parser.add_argument('--no_autocast', action='store_false', default=True, help='disable autocast')
 parser.add_argument('--save_dir', default='./saved_models/', type=str, help='path to models saving')
@@ -46,6 +46,34 @@ def train(train_loader, network, criterion, optimizer, scaler):
 			output = network(source_img)
 			loss = criterion(output, target_img)
 
+# ------------ssim loss + L1loss-------------------			
+			# output = network(source_img)
+			# loss_l1 = criterion(output, target_img)
+
+			# output1 = output.clamp_(-1, 1)
+			# # [-1, 1] to [0, 1]
+			# output1 = output1 * 0.5 + 0.5
+			# target = target_img * 0.5 + 0.5
+# ----------------------------------------------------------------------
+			# _, _, H, W = output.size()
+			# down_ratio = max(1, round(min(H, W) / 224))	
+
+			# ssim_loss = ssim(F.adaptive_avg_pool2d(output1, (int(H / down_ratio), int(W / down_ratio))), 
+			# 				F.adaptive_avg_pool2d(target, (int(H / down_ratio), int(W / down_ratio))), 
+			# 				data_range=1, size_average=True)
+# --------------------------------------------------------------------------
+
+
+			# ssim_loss = ssim(output1, target, data_range=1, size_average=True)
+			# ssim_loss_value = 1 - ssim_loss
+			
+			# loss = loss_l1 * 0.99 + ssim_loss_value * 0.01
+			# if(loss.item() > 1):
+			# 	print('==> L1 loss:', loss_l1)
+			# 	print('==> Average SSIM:', ssim_loss)
+			# 	print('==> loss:', loss)
+# ------------ssim loss + L1loss-------------------
+
 		losses.update(loss.item())
 
 		optimizer.zero_grad()
@@ -54,19 +82,26 @@ def train(train_loader, network, criterion, optimizer, scaler):
 		scaler.update()
 
 	return losses.avg
+
+"""
 # ------------ssim loss-------------------
 
 criterion_l1 = nn.L1Loss()
-ssim_loss = pytorch_ssim.SSIM(window_size=11, size_average=True)
+
+def ssim_loss(prediction, target, data_range=1.0, size_average=True):
+    return ssim(prediction, target, data_range=data_range, size_average=size_average)
+
+# 后续结果不好的话试试将data_range改为2.0或255
 
 # 定义组合损失函数
-def combined_loss(prediction, target, alpha=0.5):
+def combined_loss(prediction, target, alpha=0.85):
     l1_loss = criterion_l1(prediction, target)
     ssim_value = ssim_loss(prediction, target)
     ssim_loss_value = 1 - ssim_value
     return alpha * l1_loss + (1 - alpha) * ssim_loss_value
 
 # ------------ssim loss-------------------
+"""
 
 def valid(val_loader, network):
 	PSNR = AverageMeter()
@@ -99,8 +134,8 @@ if __name__ == '__main__':
 	network = eval(args.model.replace('-', '_'))()
 	network = nn.DataParallel(network).cuda()
 
-	# criterion = nn.L1Loss()
-	criterion = combined_loss()			
+	criterion = nn.L1Loss()
+	# criterion = combined_loss
 
 	if setting['optimizer'] == 'adam':
 		optimizer = torch.optim.Adam(network.parameters(), lr=setting['lr'])
@@ -110,7 +145,8 @@ if __name__ == '__main__':
 		raise Exception("ERROR: unsupported optimizer") 
 
 	scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=setting['epochs'], eta_min=setting['lr'] * 1e-2)
-	scaler = GradScaler()
+	# scaler = GradScaler()
+	scaler = torch.cuda.amp.GradScaler(enabled=args.no_autocast)
 
 	dataset_dir = os.path.join(args.data_dir, args.dataset)
 	train_dataset = PairLoader(dataset_dir, 'train', 'train', 
