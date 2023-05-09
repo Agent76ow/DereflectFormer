@@ -145,8 +145,8 @@ if __name__ == '__main__':
 		raise Exception("ERROR: unsupported optimizer") 
 
 	scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=setting['epochs'], eta_min=setting['lr'] * 1e-2)
-	# scaler = GradScaler()
-	scaler = torch.cuda.amp.GradScaler(enabled=args.no_autocast)
+	scaler = GradScaler()
+	# scaler = torch.cuda.amp.GradScaler(enabled=args.no_autocast)
 
 	dataset_dir = os.path.join(args.data_dir, args.dataset)
 	train_dataset = PairLoader(dataset_dir, 'train', 'train', 
