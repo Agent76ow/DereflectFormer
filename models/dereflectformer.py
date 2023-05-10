@@ -6,8 +6,54 @@ import numpy as np
 from torch.nn.init import _calculate_fan_in_and_fan_out
 from timm.models.layers import to_2tuple, trunc_normal_
 
-
 class RLN(nn.Module):
+    r"""Revised LayerNorm + adjust_brightness_contrast"""
+    def __init__(self, dim, eps=1e-5, detach_grad=False, alpha=1.0, beta=0.0):
+        super(RLN, self).__init__()
+        self.eps = eps
+        self.detach_grad = detach_grad
+        
+        # 将alpha和beta设置为nn.Parameter
+        self.alpha = nn.Parameter(torch.tensor(alpha))
+        self.beta = nn.Parameter(torch.tensor(beta))
+
+        self.weight = nn.Parameter(torch.ones((1, dim, 1, 1)))
+        self.bias = nn.Parameter(torch.zeros((1, dim, 1, 1)))
+
+        self.meta1 = nn.Conv2d(1, dim, 1)
+        self.meta2 = nn.Conv2d(1, dim, 1)
+
+        trunc_normal_(self.meta1.weight, std=.02)
+        nn.init.constant_(self.meta1.bias, 1)
+
+        trunc_normal_(self.meta2.weight, std=.02)
+        nn.init.constant_(self.meta2.bias, 0)
+
+    def forward(self, input):
+        adjusted_input = self.adjust_brightness_contrast(input, self.alpha, self.beta)
+        mean = torch.mean(adjusted_input, dim=(1, 2, 3), keepdim=True)
+        std = torch.sqrt((adjusted_input - mean).pow(2).mean(dim=(1, 2, 3), keepdim=True) + self.eps)
+
+        normalized_input = (adjusted_input - mean) / std
+
+        if self.detach_grad:
+            rescale, rebias = self.meta1(std.detach()), self.meta2(mean.detach())
+        else:
+            rescale, rebias = self.meta1(std), self.meta2(mean)
+
+        out = normalized_input * self.weight + self.bias
+        return out, rescale, rebias
+
+    @staticmethod
+    def adjust_brightness_contrast(batch_images, alpha=1.0, beta=0.0):
+        # alpha: 调整对比度的因子，默认值为1.0，意味着不进行对比度调整
+        # beta: 调整亮度的因子，默认值为0.0，意味着不进行亮度调整
+
+        batch_images = batch_images.float()
+        return torch.clamp(alpha * batch_images + beta, 0, 255)
+
+
+class RLN_old(nn.Module):
 	r"""Revised LayerNorm"""
 	def __init__(self, dim, eps=1e-5, detach_grad=False):
 		super(RLN, self).__init__()
@@ -20,11 +66,11 @@ class RLN(nn.Module):
 		self.meta1 = nn.Conv2d(1, dim, 1)
 		self.meta2 = nn.Conv2d(1, dim, 1)
 
-		trunc_normal_(self.meta1.weight, std=.02)
-		nn.init.constant_(self.meta1.bias, 1)
+		trunc_normal_(self.meta1.weight, std=.02) # mabey lately将权重初始化的标准差由0.02减小到0.01，以增加网络稳定性
+		nn.init.constant_(self.meta1.bias, 1) # 将权重初始化方法中的常数从1更改为0.5，以更好地匹配Swin Transformer的工作原理
 
-		trunc_normal_(self.meta2.weight, std=.02)
-		nn.init.constant_(self.meta2.bias, 0)
+		trunc_normal_(self.meta2.weight, std=.02) # mayby Change standard deviation from 0.02 to 0.01
+		nn.init.constant_(self.meta2.bias, 0) # maybe Keep constant value as 0
 
 	def forward(self, input):
 		mean = torch.mean(input, dim=(1, 2, 3), keepdim=True)
