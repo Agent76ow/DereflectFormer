@@ -6,7 +6,7 @@ import numpy as np
 from torch.nn.init import _calculate_fan_in_and_fan_out
 from timm.models.layers import to_2tuple, trunc_normal_
 
-class RLN(nn.Module):
+class RLN_new(nn.Module):
     r"""Revised LayerNorm + adjust_brightness_contrast"""
     def __init__(self, dim, eps=1e-5, detach_grad=False, alpha=1.0, beta=0.0):
         super(RLN, self).__init__()
@@ -53,7 +53,7 @@ class RLN(nn.Module):
         return torch.clamp(alpha * batch_images + beta, 0, 255)
 
 
-class RLN_old(nn.Module):
+class RLN(nn.Module):
 	r"""Revised LayerNorm"""
 	def __init__(self, dim, eps=1e-5, detach_grad=False):
 		super(RLN, self).__init__()
