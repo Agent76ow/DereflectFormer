@@ -97,7 +97,8 @@ class Mlp(nn.Module):
 
 		self.mlp = nn.Sequential(
 			nn.Conv2d(in_features, hidden_features, 1),
-			nn.ReLU(True),
+			nn.GELU(),
+			# nn.ReLU(True),
 			nn.Conv2d(hidden_features, out_features, 1)
 		)
 
@@ -158,7 +159,8 @@ class WindowAttention(nn.Module):
 		self.register_buffer("relative_positions", relative_positions)
 		self.meta = nn.Sequential(
 			nn.Linear(2, 256, bias=True),
-			nn.ReLU(True),
+			nn.GELU(),
+			# nn.ReLU(True),
 			nn.Linear(256, num_heads, bias=True)
 		)
 
@@ -201,7 +203,8 @@ class Attention(nn.Module):
 		if self.conv_type == 'Conv':
 			self.conv = nn.Sequential(
 				nn.Conv2d(dim, dim, kernel_size=3, padding=1, padding_mode='reflect'),
-				nn.ReLU(True),
+				nn.GELU(),
+				# nn.ReLU(True),
 				nn.Conv2d(dim, dim, kernel_size=3, padding=1, padding_mode='reflect')
 			)
 
@@ -291,7 +294,7 @@ class Attention(nn.Module):
 
 class TransformerBlock(nn.Module):
 	def __init__(self, network_depth, dim, num_heads, mlp_ratio=4.,
-				 norm_layer=nn.LayerNorm, mlp_norm=False,
+				 norm_layer=nn.LayerNorm, mlp_norm=True,
 				 window_size=8, shift_size=0, use_attn=True, conv_type=None):
 		super().__init__()
 		self.use_attn = use_attn
@@ -402,7 +405,8 @@ class SKFusion(nn.Module):
 		self.avg_pool = nn.AdaptiveAvgPool2d(1)
 		self.mlp = nn.Sequential(
 			nn.Conv2d(dim, d, 1, bias=False), 
-			nn.ReLU(),
+			nn.GELU(),
+			# nn.ReLU(True),
 			nn.Conv2d(d, dim*height, 1, bias=False)
 		)
 		

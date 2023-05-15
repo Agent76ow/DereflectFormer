@@ -5,7 +5,7 @@
     "edge_decay": 0,
     "only_h_flip": false,
     "optimizer": "adamw",
-    "lr": 4e-4,
+    "lr": 2e-4,
     "epochs":1000,
     "eval_freq": 1
 }
