@@ -308,18 +308,31 @@ class TransformerBlock(nn.Module):
 		self.mlp = Mlp(network_depth, dim, hidden_features=int(dim * mlp_ratio))
 
 	def forward(self, x):
+		# ------------LayerNorm--------------
 		identity = x
-		if self.use_attn: x, rescale, rebias = self.norm1(x)
+		if self.use_attn: x = self.norm1(x)
 		x = self.attn(x)
-		if self.use_attn: x = x * rescale + rebias
 		x = identity + x
 
 		identity = x
-		if self.use_attn and self.mlp_norm: x, rescale, rebias = self.norm2(x)
+		if self.use_attn and self.mlp_norm: x = self.norm2(x)
 		x = self.mlp(x)
-		if self.use_attn and self.mlp_norm: x = x * rescale + rebias
 		x = identity + x
 		return x
+
+		# --------------RLN------------------
+		# identity = x
+		# if self.use_attn: x, rescale, rebias = self.norm1(x)
+		# x = self.attn(x)
+		# if self.use_attn: x = x * rescale + rebias
+		# x = identity + x
+
+		# identity = x
+		# if self.use_attn and self.mlp_norm: x, rescale, rebias = self.norm2(x)
+		# x = self.mlp(x)
+		# if self.use_attn and self.mlp_norm: x = x * rescale + rebias
+		# x = identity + x
+		# return x
 
 
 class BasicLayer(nn.Module):
