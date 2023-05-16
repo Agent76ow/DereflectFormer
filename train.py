@@ -102,6 +102,15 @@ def combined_loss(prediction, target, alpha=0.85):
 
 # ------------ssim loss-------------------
 """
+class CharbonnierLoss(nn.Module):
+    def __init__(self, epsilon=1e-3):
+        super(CharbonnierLoss, self).__init__()
+        self.epsilon = epsilon
+
+    def forward(self, y_pred, y_true):
+        diff = y_pred - y_true
+        loss = torch.sqrt(diff * diff + self.epsilon * self.epsilon) - self.epsilon
+        return loss.mean()
 
 def valid(val_loader, network):
 	PSNR = AverageMeter()
@@ -134,7 +143,8 @@ if __name__ == '__main__':
 	network = eval(args.model.replace('-', '_'))()
 	network = nn.DataParallel(network).cuda()
 
-	criterion = nn.L1Loss()
+	# criterion = nn.L1Loss()
+	criterion = CharbonnierLoss()
 	# criterion = combined_loss
 
 	if setting['optimizer'] == 'adam':

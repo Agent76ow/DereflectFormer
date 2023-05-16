@@ -309,30 +309,30 @@ class TransformerBlock(nn.Module):
 
 	def forward(self, x):
 		# ------------LayerNorm--------------
-		identity = x
-		if self.use_attn: x = self.norm1(x)
-		x = self.attn(x)
-		x = identity + x
-
-		identity = x
-		if self.use_attn and self.mlp_norm: x = self.norm2(x)
-		x = self.mlp(x)
-		x = identity + x
-		return x
-
-		# --------------RLN------------------
 		# identity = x
-		# if self.use_attn: x, rescale, rebias = self.norm1(x)
+		# if self.use_attn: x = self.norm1(x)
 		# x = self.attn(x)
-		# if self.use_attn: x = x * rescale + rebias
 		# x = identity + x
 
 		# identity = x
-		# if self.use_attn and self.mlp_norm: x, rescale, rebias = self.norm2(x)
+		# if self.use_attn and self.mlp_norm: x = self.norm2(x)
 		# x = self.mlp(x)
-		# if self.use_attn and self.mlp_norm: x = x * rescale + rebias
 		# x = identity + x
 		# return x
+
+		# --------------RLN------------------
+		identity = x
+		if self.use_attn: x, rescale, rebias = self.norm1(x)
+		x = self.attn(x)
+		if self.use_attn: x = x * rescale + rebias
+		x = identity + x
+
+		identity = x
+		if self.use_attn and self.mlp_norm: x, rescale, rebias = self.norm2(x)
+		x = self.mlp(x)
+		if self.use_attn and self.mlp_norm: x = x * rescale + rebias
+		x = identity + x
+		return x
 
 
 class BasicLayer(nn.Module):
@@ -447,8 +447,8 @@ class DereflectFormer(nn.Module):
 				 num_heads=[2, 4, 6, 1, 1],
 				 attn_ratio=[1/4, 1/2, 3/4, 0, 0],
 				 conv_type=['DWConv', 'DWConv', 'DWConv', 'DWConv', 'DWConv'],
-				#  norm_layer=[RLN, RLN, RLN, RLN, RLN]):
-				 norm_layer=[nn.LayerNorm, nn.LayerNorm, nn.LayerNorm, nn.LayerNorm, nn.LayerNorm]):
+				 norm_layer=[RLN, RLN, RLN, RLN, RLN]):
+				#  norm_layer=[nn.LayerNorm, nn.LayerNorm, nn.LayerNorm, nn.LayerNorm, nn.LayerNorm]):
 		super(DereflectFormer, self).__init__()
 
 		# setting
