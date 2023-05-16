@@ -309,9 +309,6 @@ class TransformerBlock(nn.Module):
 
 	def forward(self, x):
 		# ------------LayerNorm--------------
-		# 你展平了用完了或许还要展回去！
-		batch_size, channels, height, width = x.shape
-		x = x.view(batch_size * height * width, channels)
 		identity = x
 		if self.use_attn: x = self.norm1(x)
 		x = self.attn(x)
@@ -451,7 +448,7 @@ class DereflectFormer(nn.Module):
 				 attn_ratio=[1/4, 1/2, 3/4, 0, 0],
 				 conv_type=['DWConv', 'DWConv', 'DWConv', 'DWConv', 'DWConv'],
 				#  norm_layer=[RLN, RLN, RLN, RLN, RLN]):
-				norm_layer=[nn.LayerNorm, nn.LayerNorm, nn.LayerNorm, nn.LayerNorm, nn.LayerNorm]):
+				 norm_layer=[nn.LayerNorm, nn.LayerNorm, nn.LayerNorm, nn.LayerNorm, nn.LayerNorm]):
 		super(DereflectFormer, self).__init__()
 
 		# setting
