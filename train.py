@@ -65,9 +65,11 @@ def train(train_loader, network, criterion, optimizer, scaler):
 
 
 			# ssim_loss = ssim(output1, target, data_range=1, size_average=True)
+
 			# ssim_loss_value = 1 - ssim_loss
 			
 			# loss = loss_l1 * 0.99 + ssim_loss_value * 0.01
+
 			# if(loss.item() > 1):
 			# 	print('==> L1 loss:', loss_l1)
 			# 	print('==> Average SSIM:', ssim_loss)
@@ -143,8 +145,8 @@ if __name__ == '__main__':
 	network = eval(args.model.replace('-', '_'))()
 	network = nn.DataParallel(network).cuda()
 
-	# criterion = nn.L1Loss()
-	criterion = CharbonnierLoss()
+	criterion = nn.L1Loss()
+	# criterion = CharbonnierLoss()
 	# criterion = combined_loss
 
 	if setting['optimizer'] == 'adam':
@@ -154,7 +156,8 @@ if __name__ == '__main__':
 	else:
 		raise Exception("ERROR: unsupported optimizer") 
 
-	scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=setting['epochs'], eta_min=setting['lr'] * 1e-2)
+	# scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=setting['epochs'], eta_min=setting['lr'] * 1e-2)
+	scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=setting['epochs'], eta_min=1e-6)
 	scaler = GradScaler()
 	# scaler = torch.cuda.amp.GradScaler(enabled=args.no_autocast)
 

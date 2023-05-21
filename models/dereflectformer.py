@@ -86,7 +86,6 @@ class RLN(nn.Module):
 		out = normalized_input * self.weight + self.bias
 		return out, rescale, rebias
 
-
 class Mlp(nn.Module):
 	def __init__(self, network_depth, in_features, hidden_features=None, out_features=None):
 		super().__init__()
@@ -115,6 +114,46 @@ class Mlp(nn.Module):
 
 	def forward(self, x):
 		return self.mlp(x)
+
+class Mlp_new(nn.Module):
+	def __init__(self, network_depth, in_features, hidden_features=None, out_features=None):
+		super(Mlp_new, self).__init__()
+		out_features = out_features or in_features
+		hidden_features = hidden_features or in_features
+
+		self.network_depth = network_depth
+
+		self.project_in = nn.Conv2d(in_features, hidden_features*2, 1)
+		# self.project_in = nn.Conv2d(in_features, hidden_features, 1)
+
+		self.dwconv = nn.Conv2d(hidden_features*2, hidden_features*2, kernel_size=3, stride=1, padding=1, groups=hidden_features*2)
+		# self.dwconv = nn.Conv2d(hidden_features, hidden_features, kernel_size=3, stride=1, padding=1, groups=hidden_features)
+
+		self.act1 = nn.GELU() # nn.ReLU(True)
+		self.act2 = nn.ReLU()
+
+		self.project_out = nn.Conv2d(hidden_features, out_features, 1)
+
+		self.apply(self._init_weights)
+
+	def _init_weights(self, m):
+		if isinstance(m, nn.Conv2d):
+			gain = (8 * self.network_depth) ** (-1/4)
+			fan_in, fan_out = _calculate_fan_in_and_fan_out(m.weight)
+			std = gain * math.sqrt(2.0 / float(fan_in + fan_out))
+			trunc_normal_(m.weight, std=std)
+			if m.bias is not None:
+				nn.init.constant_(m.bias, 0)
+
+	def forward(self, x):
+		x = self.project_in(x)
+		x1 ,x2 = self.dwconv(x).chunk(2, dim=1)
+		x = self.act1(x1) + x2
+		# x = self.dwconv(x)
+		# x = self.act1(x)
+		x = self.project_out(x)
+		return x
+
 
 
 def window_partition(x, window_size):
@@ -305,7 +344,7 @@ class TransformerBlock(nn.Module):
 							  shift_size=shift_size, use_attn=use_attn, conv_type=conv_type)
 
 		self.norm2 = norm_layer(dim) if use_attn and mlp_norm else nn.Identity()
-		self.mlp = Mlp(network_depth, dim, hidden_features=int(dim * mlp_ratio))
+		self.mlp = Mlp_new(network_depth, dim, hidden_features=int(dim * mlp_ratio))
 
 	def forward(self, x):
 		# ------------LayerNorm--------------
@@ -558,7 +597,8 @@ class DereflectFormer(nn.Module):
 def dereflectformer_t():
     return DereflectFormer(
 		embed_dims=[24, 48, 96, 48, 24],
-		mlp_ratios=[2., 4., 4., 2., 2.],
+		mlp_ratios=[2.66, 2.66, 2.66, 2.66, 2.66],
+		# mlp_ratios=[2., 4., 4., 2., 2.],
 		depths=[4, 4, 4, 2, 2],
 		num_heads=[2, 4, 6, 1, 1],
 		attn_ratio=[0, 1/2, 1, 0, 0],
