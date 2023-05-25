@@ -54,7 +54,7 @@ def train(train_loader, network, criterion, optimizer, scaler):
 			# # [-1, 1] to [0, 1]
 			# output1 = output1 * 0.5 + 0.5
 			# target = target_img * 0.5 + 0.5
-# ----------------------------------------------------------------------
+
 			# _, _, H, W = output.size()
 			# down_ratio = max(1, round(min(H, W) / 224))	
 
@@ -64,11 +64,11 @@ def train(train_loader, network, criterion, optimizer, scaler):
 # --------------------------------------------------------------------------
 
 
-			# ssim_loss = ssim(output1, target, data_range=1, size_average=True)
+			##### ssim_loss = ssim(output1, target, data_range=1, size_average=True)
 
 			# ssim_loss_value = 1 - ssim_loss
 			
-			# loss = loss_l1 * 0.99 + ssim_loss_value * 0.01
+			# loss = loss_l1 * 0.995 + ssim_loss_value * 0.005
 
 			# if(loss.item() > 1):
 			# 	print('==> L1 loss:', loss_l1)

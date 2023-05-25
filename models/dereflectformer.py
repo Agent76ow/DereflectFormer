@@ -148,7 +148,7 @@ class Mlp_new(nn.Module):
 	def forward(self, x):
 		x = self.project_in(x)
 		x1 ,x2 = self.dwconv(x).chunk(2, dim=1)
-		x = self.act1(x1) + x2
+		x = self.act1(x1) + self.act2(x2)
 		# x = self.dwconv(x)
 		# x = self.act1(x)
 		x = self.project_out(x)
@@ -369,7 +369,7 @@ class TransformerBlock(nn.Module):
 		identity = x
 		if self.use_attn and self.mlp_norm: x, rescale, rebias = self.norm2(x)
 		x = self.mlp(x)
-		if self.use_attn and self.mlp_norm: x = x * rescale + rebias
+		# if self.use_attn and self.mlp_norm: x = x * rescale + rebias
 		x = identity + x
 		return x
 
@@ -457,8 +457,8 @@ class SKFusion(nn.Module):
 		self.avg_pool = nn.AdaptiveAvgPool2d(1)
 		self.mlp = nn.Sequential(
 			nn.Conv2d(dim, d, 1, bias=False), 
-			nn.GELU(),
-			# nn.ReLU(True),
+			# nn.GELU(),
+			nn.ReLU(True),
 			nn.Conv2d(d, dim*height, 1, bias=False)
 		)
 		
@@ -608,7 +608,8 @@ def dereflectformer_t():
 def dereflectformer_s():
     return DereflectFormer(
 		embed_dims=[24, 48, 96, 48, 24],
-		mlp_ratios=[2., 4., 4., 2., 2.],
+		mlp_ratios=[2.66, 2.66, 2.66, 2.66, 2.66],
+		# mlp_ratios=[2., 4., 4., 2., 2.],
 		depths=[8, 8, 8, 4, 4],
 		num_heads=[2, 4, 6, 1, 1],
 		attn_ratio=[1/4, 1/2, 3/4, 0, 0],
@@ -618,7 +619,8 @@ def dereflectformer_s():
 def dereflectformer_b():
     return DereflectFormer(
         embed_dims=[24, 48, 96, 48, 24],
-		mlp_ratios=[2., 4., 4., 2., 2.],
+		mlp_ratios=[2.66, 2.66, 2.66, 2.66, 2.66],
+		# mlp_ratios=[2., 4., 4., 2., 2.],
 		depths=[16, 16, 16, 8, 8],
 		num_heads=[2, 4, 6, 1, 1],
 		attn_ratio=[1/4, 1/2, 3/4, 0, 0],
@@ -628,7 +630,8 @@ def dereflectformer_b():
 def dereflectformer_d():
     return DereflectFormer(
         embed_dims=[24, 48, 96, 48, 24],
-		mlp_ratios=[2., 4., 4., 2., 2.],
+		mlp_ratios=[2.66, 2.66, 2.66, 2.66, 2.66],
+		# mlp_ratios=[2., 4., 4., 2., 2.],
 		depths=[32, 32, 32, 16, 16],
 		num_heads=[2, 4, 6, 1, 1],
 		attn_ratio=[1/4, 1/2, 3/4, 0, 0],
@@ -638,7 +641,8 @@ def dereflectformer_d():
 def dereflectformer_w():
     return DereflectFormer(
         embed_dims=[48, 96, 192, 96, 48],
-		mlp_ratios=[2., 4., 4., 2., 2.],
+		mlp_ratios=[2.66, 2.66, 2.66, 2.66, 2.66],
+		# mlp_ratios=[2., 4., 4., 2., 2.],
 		depths=[16, 16, 16, 8, 8],
 		num_heads=[2, 4, 6, 1, 1],
 		attn_ratio=[1/4, 1/2, 3/4, 0, 0],
@@ -648,7 +652,8 @@ def dereflectformer_w():
 def dereflectformer_m():
     return DereflectFormer(
 		embed_dims=[24, 48, 96, 48, 24],
-		mlp_ratios=[2., 4., 4., 2., 2.],
+		mlp_ratios=[2.66, 2.66, 2.66, 2.66, 2.66],
+		# mlp_ratios=[2., 4., 4., 2., 2.],
 		depths=[12, 12, 12, 6, 6],
 		num_heads=[2, 4, 6, 1, 1],
 		attn_ratio=[1/4, 1/2, 3/4, 0, 0],
@@ -658,7 +663,8 @@ def dereflectformer_m():
 def dereflectformer_l():
     return DereflectFormer(
 		embed_dims=[48, 96, 192, 96, 48],
-		mlp_ratios=[2., 4., 4., 2., 2.],
+		mlp_ratios=[2.66, 2.66, 2.66, 2.66, 2.66],
+		# mlp_ratios=[2., 4., 4., 2., 2.],
 		depths=[16, 16, 16, 12, 12],
 		num_heads=[2, 4, 6, 1, 1],
 		attn_ratio=[1/4, 1/2, 3/4, 0, 0],
