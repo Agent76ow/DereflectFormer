@@ -66,11 +66,11 @@ class RLN(nn.Module):
 		self.meta1 = nn.Conv2d(1, dim, 1)
 		self.meta2 = nn.Conv2d(1, dim, 1)
 
-		trunc_normal_(self.meta1.weight, std=.02) # mabey lately将权重初始化的标准差由0.02减小到0.01，以增加网络稳定性
-		nn.init.constant_(self.meta1.bias, 1) # 将权重初始化方法中的常数从1更改为0.5，以更好地匹配Swin Transformer的工作原理
+		trunc_normal_(self.meta1.weight, std=.02) 
+		nn.init.constant_(self.meta1.bias, 1) 
 
-		trunc_normal_(self.meta2.weight, std=.02) # mayby Change standard deviation from 0.02 to 0.01
-		nn.init.constant_(self.meta2.bias, 0) # maybe Keep constant value as 0
+		trunc_normal_(self.meta2.weight, std=.02) 
+		nn.init.constant_(self.meta2.bias, 0) 
 
 	def forward(self, input):
 		mean = torch.mean(input, dim=(1, 2, 3), keepdim=True)
@@ -86,34 +86,62 @@ class RLN(nn.Module):
 		out = normalized_input * self.weight + self.bias
 		return out, rescale, rebias
 
-class Mlp(nn.Module):
-	def __init__(self, network_depth, in_features, hidden_features=None, out_features=None):
-		super().__init__()
-		out_features = out_features or in_features
-		hidden_features = hidden_features or in_features
+# class LayerNorm(nn.Module):
+# 	def __init__(self, dim, eps=1e-5):
+# 		super().__init__()
+# 		self.eps = eps
+# 		self.weight = nn.Parameter(torch.ones(dim))
+# 		self.bias = nn.Parameter(torch.zeros(dim))
 
-		self.network_depth = network_depth
+# 	def forward(self, x):
+# 		mean = x.mean(dim=-1, keepdim=True)
+# 		std = x.std(dim=-1, keepdim=True)
+# 		return self.weight * (x - mean) / (std + self.eps) + self.bias
 
-		self.mlp = nn.Sequential(
-			nn.Conv2d(in_features, hidden_features, 1),
-			nn.GELU(),
-			# nn.ReLU(True),
-			nn.Conv2d(hidden_features, out_features, 1)
-		)
+class LayerNorm_w(nn.Module):
+	def __init__(self, dim, eps=1e-5):
+		super(LayerNorm_w, self).__init__()
+		self.eps = eps
 
-		self.apply(self._init_weights)
+		self.weight = nn.Parameter(torch.ones((1, dim, 1, 1)))
+		self.bias = nn.Parameter(torch.zeros((1, dim, 1, 1)))
 
-	def _init_weights(self, m):
-		if isinstance(m, nn.Conv2d):
-			gain = (8 * self.network_depth) ** (-1/4)
-			fan_in, fan_out = _calculate_fan_in_and_fan_out(m.weight)
-			std = gain * math.sqrt(2.0 / float(fan_in + fan_out))
-			trunc_normal_(m.weight, std=std)
-			if m.bias is not None:
-				nn.init.constant_(m.bias, 0)
+	def forward(self, input):
+		mean = torch.mean(input, dim=(1, 2, 3), keepdim=True)
+		std = torch.sqrt((input - mean).pow(2).mean(dim=(1, 2, 3), keepdim=True) + self.eps)
 
-	def forward(self, x):
-		return self.mlp(x)
+		normalized_input = (input - mean) / std
+
+		out = normalized_input * self.weight + self.bias
+		return out
+# class Mlp(nn.Module):
+# 	def __init__(self, network_depth, in_features, hidden_features=None, out_features=None):
+# 		super().__init__()
+# 		out_features = out_features or in_features
+# 		hidden_features = hidden_features or in_features
+
+# 		self.network_depth = network_depth
+
+# 		self.mlp = nn.Sequential(
+# 			nn.Conv2d(in_features, hidden_features, 1),
+# 			nn.GELU(),
+# 			# nn.ReLU(True),
+# 			nn.Conv2d(hidden_features, out_features, 1)
+# 		)
+
+# 		self.apply(self._init_weights)
+
+# 	def _init_weights(self, m):
+# 		if isinstance(m, nn.Conv2d):
+# 			gain = (8 * self.network_depth) ** (-1/4)
+# 			fan_in, fan_out = _calculate_fan_in_and_fan_out(m.weight)
+# 			std = gain * math.sqrt(2.0 / float(fan_in + fan_out))
+# 			trunc_normal_(m.weight, std=std)
+# 			if m.bias is not None:
+# 				nn.init.constant_(m.bias, 0)
+
+# 	def forward(self, x):
+# 		return self.mlp(x)
 
 class Mlp_new(nn.Module):
 	def __init__(self, network_depth, in_features, hidden_features=None, out_features=None):
@@ -124,12 +152,10 @@ class Mlp_new(nn.Module):
 		self.network_depth = network_depth
 
 		self.project_in = nn.Conv2d(in_features, hidden_features*2, 1)
-		# self.project_in = nn.Conv2d(in_features, hidden_features, 1)
 
 		self.dwconv = nn.Conv2d(hidden_features*2, hidden_features*2, kernel_size=3, stride=1, padding=1, groups=hidden_features*2)
-		# self.dwconv = nn.Conv2d(hidden_features, hidden_features, kernel_size=3, stride=1, padding=1, groups=hidden_features)
 
-		self.act1 = nn.GELU() # nn.ReLU(True)
+		self.act1 = nn.GELU() 
 		self.act2 = nn.ReLU()
 
 		self.project_out = nn.Conv2d(hidden_features, out_features, 1)
@@ -149,7 +175,6 @@ class Mlp_new(nn.Module):
 		x = self.project_in(x)
 		x1 ,x2 = self.dwconv(x).chunk(2, dim=1)
 		x = self.act1(x1) + self.act2(x2)
-		# x = self.dwconv(x)
 		# x = self.act1(x)
 		x = self.project_out(x)
 		return x
@@ -198,8 +223,8 @@ class WindowAttention(nn.Module):
 		self.register_buffer("relative_positions", relative_positions)
 		self.meta = nn.Sequential(
 			nn.Linear(2, 256, bias=True),
-			nn.GELU(),
-			# nn.ReLU(True),
+			# nn.GELU(),
+			nn.ReLU(True),
 			nn.Linear(256, num_heads, bias=True)
 		)
 
@@ -242,8 +267,8 @@ class Attention(nn.Module):
 		if self.conv_type == 'Conv':
 			self.conv = nn.Sequential(
 				nn.Conv2d(dim, dim, kernel_size=3, padding=1, padding_mode='reflect'),
-				nn.GELU(),
-				# nn.ReLU(True),
+				# nn.GELU(),
+				nn.ReLU(True),
 				nn.Conv2d(dim, dim, kernel_size=3, padding=1, padding_mode='reflect')
 			)
 
@@ -347,23 +372,12 @@ class TransformerBlock(nn.Module):
 		self.mlp = Mlp_new(network_depth, dim, hidden_features=int(dim * mlp_ratio))
 
 	def forward(self, x):
-		# ------------LayerNorm--------------
-		# identity = x
-		# if self.use_attn: x = self.norm1(x)
-		# x = self.attn(x)
-		# x = identity + x
-
-		# identity = x
-		# if self.use_attn and self.mlp_norm: x = self.norm2(x)
-		# x = self.mlp(x)
-		# x = identity + x
-		# return x
-
+		"""
 		# --------------RLN------------------
 		identity = x
 		if self.use_attn: x, rescale, rebias = self.norm1(x)
 		x = self.attn(x)
-		if self.use_attn: x = x * rescale + rebias
+		# if self.use_attn: x = x * rescale + rebias
 		x = identity + x
 
 		identity = x
@@ -371,6 +385,18 @@ class TransformerBlock(nn.Module):
 		x = self.mlp(x)
 		# if self.use_attn and self.mlp_norm: x = x * rescale + rebias
 		x = identity + x
+		"""
+		# --------------LayerNorm------------------
+		identity = x
+		if self.use_attn: x = self.norm1(x)
+		x = self.attn(x)
+		x = identity + x
+
+		identity = x
+		if self.use_attn and self.mlp_norm: x = self.norm2(x)
+		x = self.mlp(x)
+		x = identity + x
+
 		return x
 
 
@@ -486,7 +512,8 @@ class DereflectFormer(nn.Module):
 				 num_heads=[2, 4, 6, 1, 1],
 				 attn_ratio=[1/4, 1/2, 3/4, 0, 0],
 				 conv_type=['DWConv', 'DWConv', 'DWConv', 'DWConv', 'DWConv'],
-				 norm_layer=[RLN, RLN, RLN, RLN, RLN]):
+				#  norm_layer=[RLN, RLN, RLN, RLN, RLN]):
+				 norm_layer=[LayerNorm_w, LayerNorm_w, LayerNorm_w, LayerNorm_w, LayerNorm_w]):
 				#  norm_layer=[nn.LayerNorm, nn.LayerNorm, nn.LayerNorm, nn.LayerNorm, nn.LayerNorm]):
 		super(DereflectFormer, self).__init__()
 
@@ -597,8 +624,8 @@ class DereflectFormer(nn.Module):
 def dereflectformer_t():
     return DereflectFormer(
 		embed_dims=[24, 48, 96, 48, 24],
-		mlp_ratios=[2.66, 2.66, 2.66, 2.66, 2.66],
-		# mlp_ratios=[2., 4., 4., 2., 2.],
+		# mlp_ratios=[2.66, 2.66, 2.66, 2.66, 2.66],
+		mlp_ratios=[2., 4., 4., 2., 2.],
 		depths=[4, 4, 4, 2, 2],
 		num_heads=[2, 4, 6, 1, 1],
 		attn_ratio=[0, 1/2, 1, 0, 0],
@@ -608,8 +635,8 @@ def dereflectformer_t():
 def dereflectformer_s():
     return DereflectFormer(
 		embed_dims=[24, 48, 96, 48, 24],
-		mlp_ratios=[2.66, 2.66, 2.66, 2.66, 2.66],
-		# mlp_ratios=[2., 4., 4., 2., 2.],
+		# mlp_ratios=[2.66, 2.66, 2.66, 2.66, 2.66],
+		mlp_ratios=[2., 4., 4., 2., 2.],
 		depths=[8, 8, 8, 4, 4],
 		num_heads=[2, 4, 6, 1, 1],
 		attn_ratio=[1/4, 1/2, 3/4, 0, 0],
@@ -619,8 +646,8 @@ def dereflectformer_s():
 def dereflectformer_b():
     return DereflectFormer(
         embed_dims=[24, 48, 96, 48, 24],
-		mlp_ratios=[2.66, 2.66, 2.66, 2.66, 2.66],
-		# mlp_ratios=[2., 4., 4., 2., 2.],
+		# mlp_ratios=[2.66, 2.66, 2.66, 2.66, 2.66],
+		mlp_ratios=[2., 4., 4., 2., 2.],
 		depths=[16, 16, 16, 8, 8],
 		num_heads=[2, 4, 6, 1, 1],
 		attn_ratio=[1/4, 1/2, 3/4, 0, 0],

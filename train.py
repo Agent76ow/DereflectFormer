@@ -17,13 +17,13 @@ from models import *
 
 
 parser = argparse.ArgumentParser()
-parser.add_argument('--model', default='dereflectformer-t', type=str, help='model name')
-parser.add_argument('--num_workers', default=0, type=int, help='number of workers')
+parser.add_argument('--model', default='dereflectformer-b', type=str, help='model name')
+parser.add_argument('--num_workers', default=16, type=int, help='number of workers')
 parser.add_argument('--no_autocast', action='store_false', default=True, help='disable autocast')
 parser.add_argument('--save_dir', default='./saved_models/', type=str, help='path to models saving')
 parser.add_argument('--data_dir', default='./datasets/', type=str, help='path to dataset')
 parser.add_argument('--log_dir', default='./logs/', type=str, help='path to logs')
-parser.add_argument('--dataset', default='TEST', type=str, help='dataset name')
+parser.add_argument('--dataset', default='REFLECT', type=str, help='dataset name')
 parser.add_argument('--exp', default='reflect', type=str, help='experiment setting')
 parser.add_argument('--gpu', default='0,1,2,3', type=str, help='GPUs used for training')
 args = parser.parse_args()
