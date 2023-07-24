@@ -695,4 +695,5 @@ def dereflectformer_l():
 		depths=[16, 16, 16, 12, 12],
 		num_heads=[2, 4, 6, 1, 1],
 		attn_ratio=[1/4, 1/2, 3/4, 0, 0],
-		conv_type=['Conv', 'Conv', 'Conv', 'Conv', 'Conv'])
+		# conv_type=['Conv', 'Conv', 'Conv', 'Conv', 'Conv']
+		conv_type=['DWConv', 'DWConv', 'DWConv', 'DWConv', 'DWConv'])

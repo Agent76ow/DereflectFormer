@@ -2,7 +2,7 @@
     "batch_size": 8,
     "patch_size": 224,
     "valid_mode": "valid",
-    "edge_decay": 0.1,
+    "edge_decay": 0,
     "only_h_flip": false,
     "optimizer": "adamw",
     "lr": 1e-4,
