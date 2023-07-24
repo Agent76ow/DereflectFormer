@@ -13,7 +13,7 @@ from models import *
 from thop import profile
 
 parser = argparse.ArgumentParser()
-parser.add_argument('--model', default='dereflectformer-s', type=str, help='model name')
+parser.add_argument('--model', default='dereflectformer-b', type=str, help='model name')
 parser.add_argument('--num_workers', default=0, type=int, help='number of workers')
 parser.add_argument('--data_dir', default='./datasets/', type=str, help='path to dataset')
 parser.add_argument('--save_dir', default='./saved_models/', type=str, help='path to models saving')

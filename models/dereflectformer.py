@@ -648,7 +648,7 @@ def dereflectformer_b():
         embed_dims=[24, 48, 96, 48, 24],
 		# mlp_ratios=[2.66, 2.66, 2.66, 2.66, 2.66],
 		mlp_ratios=[2., 4., 4., 2., 2.],
-		depths=[12, 12, 12, 6, 6],
+		depths=[16, 16, 16, 8, 8],
 		num_heads=[2, 4, 6, 1, 1],
 		attn_ratio=[1/4, 1/2, 3/4, 0, 0],
 		conv_type=['DWConv', 'DWConv', 'DWConv', 'DWConv', 'DWConv'])
