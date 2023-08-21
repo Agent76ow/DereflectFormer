@@ -18,7 +18,7 @@ parser.add_argument('--num_workers', default=0, type=int, help='number of worker
 parser.add_argument('--data_dir', default='./datasets/', type=str, help='path to dataset')
 parser.add_argument('--save_dir', default='./saved_models/', type=str, help='path to models saving')
 parser.add_argument('--result_dir', default='./results/', type=str, help='path to results saving')
-parser.add_argument('--dataset', default='REFLECT/real20', type=str, help='dataset name')
+parser.add_argument('--dataset', default='REFLECT/Wild', type=str, help='dataset name')
 parser.add_argument('--exp', default='reflect', type=str, help='experiment setting')
 args = parser.parse_args()
 
