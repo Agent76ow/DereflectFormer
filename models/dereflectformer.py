@@ -503,6 +503,26 @@ class SKFusion(nn.Module):
 		out = torch.sum(in_feats*attn, dim=1)
 		return out      
 
+class ConcatFusion(nn.Module):
+    def __init__(self, dim):
+        super(ConcatFusion, self).__init__()
+        self.dim = dim
+
+    def forward(self, in_feats):
+        
+        concatenated = torch.cat(in_feats, dim=1)
+        
+        # 计算输入特征图的数量
+        num_features = len(in_feats)
+        
+        # 将拼接后的特征图分割成原始的形状
+        split_feats = torch.split(concatenated, self.dim, dim=1)
+        
+        # 对所有特征图求平均
+        out = sum(split_feats) / num_features
+        
+        return out
+
 
 class DereflectFormer(nn.Module):
 	def __init__(self, in_chans=3, out_chans=4, window_size=8,
@@ -557,7 +577,7 @@ class DereflectFormer(nn.Module):
 
 		assert embed_dims[1] == embed_dims[3]
 		# self.fusion1 = SKFusion(embed_dims[3])
-		self.fusion1 = embed_dims[3]
+		self.fusion1 = ConcatFusion(embed_dims[3])
 
 		self.layer4 = BasicLayer(network_depth=sum(depths), dim=embed_dims[3], depth=depths[3],
 								 num_heads=num_heads[3], mlp_ratio=mlp_ratios[3],
@@ -569,7 +589,7 @@ class DereflectFormer(nn.Module):
 
 		assert embed_dims[0] == embed_dims[4]
 		# self.fusion2 = SKFusion(embed_dims[4])			
-		self.fusion2 = embed_dims[4]	
+		self.fusion2 = ConcatFusion(embed_dims[4])
 
 		self.layer5 = BasicLayer(network_depth=sum(depths), dim=embed_dims[4], depth=depths[4],
 					   			 num_heads=num_heads[4], mlp_ratio=mlp_ratios[4],

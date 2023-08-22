@@ -78,7 +78,7 @@ def mix_images(path1, path2, save_dir):
         imgR = Image.fromarray(np.uint8(R*255))
         imgT = Image.fromarray(np.uint8(T*255))
 
-        mixed = Image.blend(imgT, imgR, 0.03) # should be 0.3
+        mixed = Image.blend(imgT, imgR, 0.03) 
 
         mixed.save(os.path.join(save_dir, file_name))
         print('Mixed image saved:', file_name)
