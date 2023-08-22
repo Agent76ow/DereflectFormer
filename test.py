@@ -13,12 +13,12 @@ from models import *
 from thop import profile
 
 parser = argparse.ArgumentParser()
-parser.add_argument('--model', default='dereflectformer-l', type=str, help='model name')
+parser.add_argument('--model', default='dereflectformer-b', type=str, help='model name')
 parser.add_argument('--num_workers', default=0, type=int, help='number of workers')
 parser.add_argument('--data_dir', default='./datasets/', type=str, help='path to dataset')
 parser.add_argument('--save_dir', default='./saved_models/', type=str, help='path to models saving')
 parser.add_argument('--result_dir', default='./results/', type=str, help='path to results saving')
-parser.add_argument('--dataset', default='REFLECT/Wild', type=str, help='dataset name')
+parser.add_argument('--dataset', default='REFLECT/Wild2', type=str, help='dataset name')
 parser.add_argument('--exp', default='reflect', type=str, help='experiment setting')
 args = parser.parse_args()
 

@@ -556,7 +556,8 @@ class DereflectFormer(nn.Module):
 			patch_size=2, out_chans=embed_dims[3], embed_dim=embed_dims[2])
 
 		assert embed_dims[1] == embed_dims[3]
-		self.fusion1 = SKFusion(embed_dims[3])
+		# self.fusion1 = SKFusion(embed_dims[3])
+		self.fusion1 = embed_dims[3]
 
 		self.layer4 = BasicLayer(network_depth=sum(depths), dim=embed_dims[3], depth=depths[3],
 								 num_heads=num_heads[3], mlp_ratio=mlp_ratios[3],
@@ -567,7 +568,8 @@ class DereflectFormer(nn.Module):
 			patch_size=2, out_chans=embed_dims[4], embed_dim=embed_dims[3])
 
 		assert embed_dims[0] == embed_dims[4]
-		self.fusion2 = SKFusion(embed_dims[4])			
+		# self.fusion2 = SKFusion(embed_dims[4])			
+		self.fusion2 = embed_dims[4]	
 
 		self.layer5 = BasicLayer(network_depth=sum(depths), dim=embed_dims[4], depth=depths[4],
 					   			 num_heads=num_heads[4], mlp_ratio=mlp_ratios[4],
