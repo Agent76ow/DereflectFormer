@@ -172,11 +172,11 @@ class Mlp_new(nn.Module):
 				nn.init.constant_(m.bias, 0)
 
 	def forward(self, x):
-		# x = self.project_in(x)
-		# x1 ,x2 = self.dwconv(x).chunk(2, dim=1)
-		# x = self.act1(x1) + self.act2(x2)
-		# # x = self.act1(x)
-		# x = self.project_out(x)
+		x = self.project_in(x)
+		x1 ,x2 = self.dwconv(x).chunk(2, dim=1)
+		x = self.act1(x1) + self.act2(x2)
+		# x = self.act1(x)
+		x = self.project_out(x)
 		return x
 
 
@@ -673,7 +673,8 @@ def dereflectformer_b():
 		depths=[16, 16, 16, 8, 8],
 		num_heads=[2, 4, 6, 1, 1],
 		attn_ratio=[1/4, 1/2, 3/4, 0, 0],
-		conv_type=['DWConv', 'DWConv', 'DWConv', 'DWConv', 'DWConv'])
+		conv_type=['Conv', 'Conv', 'Conv', 'Conv', 'Conv'])
+		# conv_type=['DWConv', 'DWConv', 'DWConv', 'DWConv', 'DWConv'])
 
 
 def dereflectformer_d():
