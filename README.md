@@ -46,7 +46,7 @@ pip install -r requirements.txt
   [Pascal VOC dataset](http://host.robots.ox.ac.uk/pascal/VOC/), center-cropped as 224 x 224 slices to synthesize training pairs.
 * 90 real-world training pairs provided by [Zhang *et al.*](https://github.com/ceciliavision/perceptual-reflection-removal)
 * 257 from CID datasets https://sir2data.github.io/
-* 13700 synthetic images
+* 13700 synthetic images.
 
 #### Testing dataset
 * 45 real-world testing images from [CEILNet dataset](https://github.com/fqnchina/CEILNet).
