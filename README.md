@@ -19,4 +19,4 @@ real-world scenarios. Furthermore, our ablation studies reveal that each compo-
 nent of our architecture contributes significantly to its performance, offering valu-
 able insights for future research in the field of single image reflection removal.
 
-![DereflecFormer](figs/Dereflectformer.png)
+![DereflecFormer](figs/Dereflectformer.jpg)
