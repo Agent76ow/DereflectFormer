@@ -54,3 +54,12 @@ pip install -r requirements.txt
 * 454 real testing pairs from [SIR^2 dataset](https://sir2data.github.io/), containing three subsets (i.e., Objects (200), Postcard (199), Wild (55)).
 * 72 from CID datasets https://sir2data.github.io/
 
+#### Visual comparison on testing datase
+![compare](figs/compare.png)
+
+#### Synthetic dataset
+![synthetic](figs/ynthetic.png)
+
+#### Ablation study
+![ablation](figs/ablation.png)
+
