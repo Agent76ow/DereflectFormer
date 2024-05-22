@@ -1,4 +1,4 @@
-# VDereflectFormer: Vision Transformers for Single Image Reflection Removal
+# DereflectFormer: Vision Transformers for Single Image Reflection Removal
 
 > **Abstract:** 
 We address the challenge of single image reflection re-
