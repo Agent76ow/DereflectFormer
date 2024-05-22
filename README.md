@@ -58,7 +58,7 @@ pip install -r requirements.txt
 ![compare](figs/compare.png)
 
 #### Synthetic dataset
-![synthetic](figs/ynthetic.png)
+![synthetic](figs/synthetic.png)
 
 #### Ablation study
 ![ablation](figs/ablation.png)
