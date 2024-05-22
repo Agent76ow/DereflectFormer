@@ -20,3 +20,21 @@ nent of our architecture contributes significantly to its performance, offering 
 able insights for future research in the field of single image reflection removal.
 
 ![DereflecFormer](figs/Dereflectformer.jpg)
+
+## Preparation
+
+### Install
+
+We test the code on PyTorch 1.10.2 + CUDA 11.3 + cuDNN 8.2.0.
+
+1. Create a new conda environment
+```
+conda create -n Dereflectformer python=3.7
+conda activate Dereflectformer
+```
+
+2. Install dependencies
+```
+conda install pytorch=1.10.2 torchvision torchaudio cudatoolkit=11.3 -c pytorch
+pip install -r requirements.txt
+```
